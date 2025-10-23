@@ -13,13 +13,13 @@ This project utilizes a modern cloud-native stack:
 * **Programming Language:**
     * [Go (Golang)](https://go.dev/)
 * **AWS Cloud Services:**
-    * [cite_start]**[AWS Lambda](https://aws.amazon.com/lambda/):** For serverless compute (runs the Go code) [cite: 55-56]
+    * **[AWS Lambda](https://aws.amazon.com/lambda/):** For serverless compute (runs the Go code)
     * **[Amazon S3](https://aws.amazon.com/s3/):** To store the `urls.txt` config file
-    * [cite_start]**[Amazon EventBridge](https://aws.amazon.com/eventbridge/):** As a scheduler (triggers the Lambda every 5 minutes) [cite: 57-58]
+    * **[Amazon EventBridge](https://aws.amazon.com/eventbridge/):** As a scheduler (triggers the Lambda every 5 minutes)
     * **[Amazon CloudWatch](https://aws.amazon.com/cloudwatch/):** For logging the function's output
-    * [cite_start]**[AWS IAM](https://aws.amazon.com/iam/):** To manage all necessary permissions (Roles & Policies) [cite: 51-52, 53-54]
+    * **[AWS IAM](https://aws.amazon.com/iam/):** To manage all necessary permissions (Roles & Policies)
 * **Infrastructure as Code (IaC):**
-    * [cite_start]**[Terraform](https://www.terraform.io/):** To define, provision, and manage all AWS resources automatically [cite: 53-61]
+    * **[Terraform](https://www.terraform.io/):** To define, provision, and manage all AWS resources automatically
 
 ---
 
@@ -27,18 +27,18 @@ This project utilizes a modern cloud-native stack:
 
 The system follows a simple, event-driven, serverless architecture:
 
-1.  [cite_start]An **Amazon EventBridge** rule triggers "every 5 minutes". [cite: 57-58]
-2.  [cite_start]EventBridge invokes the **AWS Lambda** function. [cite: 59-60]
+1.  An **Amazon EventBridge** rule triggers "every 5 minutes".
+2.  EventBridge invokes the **AWS Lambda** function.
 3.  The **Go program** (running on Lambda) loads its AWS config and S3 client.
 4.  It fetches the `urls.txt` file from the **S3 Bucket**.
-5.  It loops through each URL, performs an HTTP GET request (`checkUrl` function).
+5.  **[ปรับปรุง]** It loops through each URL, **trims whitespace, skips empty lines**, and performs an HTTP GET request (`checkUrl` function) **with a 10-second timeout.**
 6.  It logs the `Status: OK` or `Status: Not OK` output to **Amazon CloudWatch Logs**.
 
 ---
 
 ## 🚀 How to Deploy
 
-[cite_start]All infrastructure is managed by Terraform [cite: 53-61].
+All infrastructure is managed by Terraform.
 
 **Prerequisites:**
 * [Terraform](https://developer.hashicorp.com/terraform/install) installed
@@ -105,7 +105,8 @@ The system follows a simple, event-driven, serverless architecture:
 
 This project was a great exercise in cloud engineering. Key challenges included:
 
-* [cite_start]**IAM Permissions:** Debugging `AccessDenied` errors for both the S3 bucket (for Terraform) and the Lambda Role (e.g., needing `s3:GetObject` [cite: 53-54] and `logs:PutLogEvents`).
+* **[ใหม่] HTTP Request Timeout:** Ensuring stability by explicitly setting a **10-second timeout** on the `http.Client` to prevent the Lambda function from running until its overall limit is reached due to slow or unresponsive websites.
+* **IAM Permissions:** Debugging `AccessDenied` errors for both the S3 bucket (for Terraform) and the Lambda Role (e.g., needing `s3:GetObject` and `logs:PutLogEvents`).
 * **S3 Region Redirect:** Solving the `301 PermanentRedirect` error by explicitly setting the correct AWS region (`ap-southeast-1`) in both the Go SDK and the Terraform provider.
 * **Lambda Runtimes:** AWS deprecated the `go1.x` runtime, forcing a migration to the `provided.al2` runtime. This required compiling the Go code to a binary named `bootstrap` instead of deploying the source code.
 * **Cross-Platform Issues:** Handling Windows `\r\n` (Carriage Return) characters in the `urls.txt` file by adding `strings.ReplaceAll` to sanitize the input.
