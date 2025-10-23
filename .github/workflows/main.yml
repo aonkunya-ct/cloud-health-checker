@@ -1,0 +1,35 @@
+name: Go Build and Archive
+
+on:
+  push:
+    branches:
+      - main
+  # 🎯 อนุญาตให้รัน workflow ด้วยตัวเองได้
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22' # 🛠️ ใช้ Go เวอร์ชันล่าสุด
+
+      - name: Build Go Binary (for Lambda)
+        run: |
+          # ⚙️ คอมไพล์สำหรับ Amazon Linux 2 (provided.al2)
+          GOOS=linux GOARCH=amd64 go build -o bootstrap main.go
+          
+      - name: Zip the Binary
+        run: zip lambda_function.zip bootstrap
+
+      - name: Upload Artifact for Deployment
+        uses: actions/upload-artifact@v4
+        with:
+          name: lambda-package
+          path: lambda_function.zip
+          retention-days: 1 # เก็บไฟล์ไว้ 1 วัน
