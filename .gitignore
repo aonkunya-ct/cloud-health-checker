@@ -10,5 +10,8 @@ bootstrap
 # โฟลเดอร์ที่ Terraform ใช้เก็บปลั๊กอิน (สร้างอัตโนมัติ)
 .terraform/
 
-# ไฟล์ State ของ Terraform (อาจเก็บความลับ)
-.tfstate
+# ไฟล์ที่เก็บการตั้งค่า Terraform (อาจเก็บความลับ)
+*.terraform.*
+
+# ไฟล์ล็อกของ Terraform
+terraform.tfstate
