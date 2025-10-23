@@ -105,7 +105,7 @@ All infrastructure is managed by Terraform.
 
 This project was a great exercise in cloud engineering. Key challenges included:
 
-* **[ใหม่] HTTP Request Timeout:** Ensuring stability by explicitly setting a **10-second timeout** on the `http.Client` to prevent the Lambda function from running until its overall limit is reached due to slow or unresponsive websites.
+* **HTTP Request Timeout:** Ensuring stability by explicitly setting a **10-second timeout** on the `http.Client` to prevent the Lambda function from running until its overall limit is reached due to slow or unresponsive websites.
 * **IAM Permissions:** Debugging `AccessDenied` errors for both the S3 bucket (for Terraform) and the Lambda Role (e.g., needing `s3:GetObject` and `logs:PutLogEvents`).
 * **S3 Region Redirect:** Solving the `301 PermanentRedirect` error by explicitly setting the correct AWS region (`ap-southeast-1`) in both the Go SDK and the Terraform provider.
 * **Lambda Runtimes:** AWS deprecated the `go1.x` runtime, forcing a migration to the `provided.al2` runtime. This required compiling the Go code to a binary named `bootstrap` instead of deploying the source code.
