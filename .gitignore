@@ -1,0 +1,14 @@
+# ไฟล์โปรแกรม Terraform (ขนาดใหญ่)
+terraform.exe
+
+# ไฟล์ Zip ที่สร้างเพื่อ deploy (ไฟล์ผลลัพธ์)
+lambda_function.zip
+
+# ไฟล์ Binary ที่คอมไพล์ (ไฟล์ผลลัพธ์)
+bootstrap
+
+# โฟลเดอร์ที่ Terraform ใช้เก็บปลั๊กอิน (สร้างอัตโนมัติ)
+.terraform/
+
+# ไฟล์ State ของ Terraform (อาจเก็บความลับ)
+.tfstate
