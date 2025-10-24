@@ -42,8 +42,6 @@ jobs:
                 archive_format: 'zip',
               });
               const fs = require('fs');
-              
-              # --- 🎯 นี่คือบรรทัดที่เราแก้ไข (จาก constAdmZip เป็น const AdmZip) ---
               const AdmZip = require('adm-zip');
 
               fs.writeFileSync('lambda-package.zip', Buffer.from(download.data));
