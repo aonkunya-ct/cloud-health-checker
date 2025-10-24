@@ -22,11 +22,13 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Install adm-zip dependency
+        run: npm install adm-zip
+
       - name: Download Lambda Artifact
         uses: actions/github-script@v6
         with:
           script: |
-            // 💡 โค้ดสำหรับดึงไฟล์ Zip ที่สร้างจาก Build Workflow
             core.info('Downloading artifacts...')
             const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
