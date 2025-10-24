@@ -1,0 +1,72 @@
+name: Terraform Deploy
+
+on:
+  # 💡 ตั้งค่าให้รันหลังจาก 'Go Build' เสร็จสมบูรณ์
+  workflow_run:
+    workflows: ["Go Build and Archive"]
+    types: 
+      - completed
+    # ⚠️ รันเฉพาะเมื่อ Build สำเร็จเท่านั้น
+    branches:
+      - main
+
+env:
+  # 🎯 กำหนด Environment Variables ให้กับ AWS Provider
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # ⚠️ ตรวจสอบว่า Go Build เสร็จสมบูรณ์หรือไม่
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download Lambda Artifact
+        uses: actions/github-script@v6
+        with:
+          script: |
+            # 💡 โค้ดสำหรับดึงไฟล์ Zip ที่สร้างจาก Build Workflow
+            core.info('Downloading artifacts...')
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: ${{ github.event.workflow_run.id }},
+            });
+            const match = artifacts.data.artifacts.find(artifact => artifact.name === 'lambda-package');
+            if (match) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: match.id,
+                archive_format: 'zip',
+              });
+              const fs = require('fs');
+              
+              # --- 🎯 นี่คือบรรทัดที่เราแก้ไข (จาก constAdmZip เป็น const AdmZip) ---
+              const AdmZip = require('adm-zip');
+
+              fs.writeFileSync('lambda-package.zip', Buffer.from(download.data));
+              const zip = new AdmZip('lambda-package.zip');
+              zip.extractAllTo('.', true); 
+              core.info('Artifact downloaded and extracted.');
+            } else {
+              core.setFailed('Lambda package artifact not found.');
+            }
+          
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        # ⚠️ รัน Apply อัตโนมัติ (Production Best Practice อาจใช้ Manual Approval)
+        run: terraform apply -auto-approve
