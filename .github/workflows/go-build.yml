@@ -19,6 +19,9 @@ jobs:
         with:
           go-version: '1.22' # 🛠️ ใช้ Go เวอร์ชันล่าสุด
 
+      - name: Download Go Modules
+        run: go mod download
+
       - name: Build Go Binary (for Lambda)
         run: |
           # ⚙️ คอมไพล์สำหรับ Amazon Linux 2 (provided.al2)
