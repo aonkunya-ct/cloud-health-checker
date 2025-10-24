@@ -46,7 +46,9 @@ jobs:
                 archive_format: 'zip',
               });
               const fs = require('fs');
-              constAdmZip = require('adm-zip');
+              
+              const AdmZip = require('adm-zip');
+
               fs.writeFileSync('lambda-package.zip', Buffer.from(download.data));
               const zip = new AdmZip('lambda-package.zip');
               zip.extractAllTo('.', true); 
