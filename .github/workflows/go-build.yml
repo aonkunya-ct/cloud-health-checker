@@ -35,4 +35,4 @@ jobs:
         with:
           name: lambda-package
           path: lambda_function.zip
-          retention-days: 1 # เก็บไฟล์ไว้ 1 วัน
+          retention-days: 7 # เก็บไฟล์ไว้ 7 วัน
